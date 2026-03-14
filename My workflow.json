@@ -1,0 +1,158 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        -80
+      ],
+      "id": "2987a48d-777a-428d-a7b7-d3505d2bdb49",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert ATS resume optimizer.\n\nINPUT\nResume:{{ $json.text }}\n\nJob Description:\n{{ $('Resume Optimizer').item.json.job_description }}\n\n\nTASKS\n\n1. Calculate ATS match score (0-100)\n2. Identify missing skills\n3. Identify weak bullet points\n4. Suggest improvements\n5. Rewrite resume aligned to job description\n6. Suggest keywords for ATS\n\nOUTPUT FORMAT:\n\nMatch Score:\nMissing Skills:\nKeyword Suggestions:\nResume Improvements:\nOptimized Resume:",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an ATS resume optimization expert.\nYou analyze resumes and compare them with job descriptions to improve ATS compatibility."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        576,
+        -80
+      ],
+      "id": "6a1e262d-4dce-4ed4-a9f3-a4c718da2d46",
+      "name": "AI Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "phi3:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        576,
+        160
+      ],
+      "id": "76196c14-f65c-43b7-bb3a-0e0685ad4071",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "u2r2DuKhD9isyUyO",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Resume",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Resume",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "job_description"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        208,
+        -80
+      ],
+      "id": "0cc4796f-4aee-4876-8fb5-5cb6f871b6ce",
+      "name": "Resume Optimizer",
+      "webhookId": "898ebd93-dde5-4d85-9318-512e05434617"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Resume Analysis</title>\n<style>\n  /* Body & Page Styling */\n  body {\n    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);\n    margin: 0;\n    padding: 40px 20px;\n    display: flex;\n    justify-content: center;\n    align-items: flex-start;\n    min-height: 100vh;\n  }\n\n  /* Card Container */\n  .card {\n    background: #ffffff;\n    padding: 40px 30px;\n    border-radius: 15px;\n    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);\n    max-width: 900px;\n    width: 100%;\n    transition: transform 0.3s ease, box-shadow 0.3s ease;\n  }\n\n  .card:hover {\n    transform: translateY(-5px);\n    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);\n  }\n\n  /* Heading */\n  h1 {\n    color: #1f3c88;\n    font-size: 2.5rem;\n    margin-bottom: 35px;\n    text-align: center;\n    font-weight: 700;\n    text-transform: uppercase;\n    letter-spacing: 1px;\n    border-bottom: 3px solid #1f3c88;\n    display: inline-block;\n    padding-bottom: 10px;\n  }\n\n  /* Resume Output */\n  pre {\n    white-space: pre-wrap;\n    font-family: 'Courier New', Courier, monospace;\n    background: #f0f4f8;\n    padding: 25px;\n    border-left: 6px solid #1f3c88;\n    border-radius: 8px;\n    color: #333;\n    overflow-x: auto;\n    font-size: 1rem;\n    line-height: 1.8; /* Increased line spacing for readability */\n  }\n\n  /* Responsive */\n  @media (max-width: 600px) {\n    .card {\n      padding: 30px 20px;\n    }\n    h1 {\n      font-size: 2rem;\n    }\n  }\n</style>\n</head>\n\n<body>\n  <div class=\"card\">\n    <h1>ATS Resume Analysis</h1>\n    <pre>\n{{ $json.output }}\n    </pre>\n  </div>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        -80
+      ],
+      "id": "2d98b498-ddac-4d05-b5ff-5859e2fbeea7",
+      "name": "HTML1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume Optimizer": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "555aec5a-999d-44d1-b888-ee29f52b0f2f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5d64f15cea644981aeb29aa7eccdc454e079b946541ff1178892365766399d3"
+  },
+  "id": "MUAWRxb1DR9h8iCD",
+  "tags": []
+}
